@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
+import javax.naming.spi.DirStateFactory.Result;
+
+import org.omg.CORBA.FloatHolder;
+
 public class mainWindow {
 	private static String fileName;
 	private static final int infinite = 1000;
@@ -14,14 +18,30 @@ public class mainWindow {
 	public static void main(String[] args){
 		Scanner in = new Scanner(System.in);
 		System.out.println("Choose the input mode: 0 for file, 1 for console");
-		int option = in.nextInt();
+		//int option = in.nextInt();
+		int option = 0;
 		if(option == 0){
 			System.out.println("Input file name(suffixed included):");
 			do{
-				fileName = in.next();
+				//fileName = in.next();
+				fileName = "data.txt";
 			}while(!fileName.contains(".txt")&&!fileName.contains(".bin"));
 		}
 		Graph G = createDirectedGraph(fileName);
+		//show graph
+//		System.out.println("vertex:");
+//		for(int i =0;i<G.getVertexNum();i++){
+//			System.out.println(G.getNodes().get(i).getWord() + " ");
+//		}
+//		for(int i =0;i<G.getVertexNum();i++){
+//			System.out.println(G.getNodeList().get(i));
+//		}
+		
+//		//test bridge word
+//		String word1, word2;
+//		word1 = in.next();word2 = in.next();
+//		System.out.println(queryBridgeWords(G, word1, word2));
+		
 		
 		//showDirectedGraph(G);
 		
@@ -31,17 +51,9 @@ public class mainWindow {
 		w1 = in.next(); w2 = in.next();
 		String path = calcShortestPath(G,w1,w2);
 		System.out.println(path);
-		String[] paths = path.split("\\|\\|");
-		int color = 3;
-		for(String aString : paths){
-			String[] singlePath = aString.split("<-");
-			G.getNodes().get(G.getNodeSet().get(singlePath[0])).setColor(1);
-			G.getNodes().get(G.getNodeSet().get(singlePath[singlePath.length-1])).setColor(2);
-			for(int i = 0;i<singlePath.length -1 ;i++){
-				G.getNodeList().get(singlePath[i+1]).get(singlePath[i]).setColor(color);
-			}
-			showDirectedGraph(G);
-		}
+		String[] Words = path.split("\n"); 
+		color(G, Words[0], 1);
+		showDirectedGraph(G);
 		//}
 		
 //		//test random walk
@@ -54,47 +66,23 @@ public class mainWindow {
 //		newText = "Seek to explore new and exciting synergies";
 //		newText = generateNewText(G, newText);
 //		System.out.println(newText);
-//		
-//		//test found bridge word
-//		String word1, word2;
-//		word1 = in.next(); word2 = in.next();
-//		String statement = queryBridgeWords(G, word1, word2);
-//		if(!statement.contains("!")){//modify the sentence
-//			String[] words = statement.split(", ");
-//			StringBuffer tmp = new StringBuffer();
-//			for(int i = 0;i<words.length-2;i++){
-//				tmp.append(words[i] + ", ");
-//			}
-//			tmp.append(((words.length>1)?"and ":" ") + words[words.length-1] + ".");
-//			statement = "The bridge words from \"" + word1 + "\" to \"" + word2 + "\" " + ((words.length>1)?"are:":"is:") + tmp.toString();
-//		}
-//		System.out.println(statement);
-//		in.close();
 	}
 
 	//find bridge word in the sentence
 	public static String queryBridgeWords(Graph G, String w1, String w2){
-		ArrayList<String> result = new ArrayList<String>();
-		String s;
+		String s = null;
 		if(G.getNodeSet().containsKey(w1)&&G.getNodeSet().containsKey(w2)){
-			HashMap<String, Edge> e = G.getNodeList().get(w1);
-			for(String i : e.keySet()){
-				if(G.getNodeList().get(i)!=null&&G.getNodeList().get(i).containsKey(w2)){
-					result.add(i);
-				}
-			}
-			StringBuffer tmp = new StringBuffer();
-
-			if (result.size()==0)
-				s = "No bridge words from \"" + w1 + "\" and \"" + w2 + "\"!";
+			s = getBridgeWord(G, w1, w2);
+			if(s==null)
+				s = ("No bridge words from \""+ w1 +"\"to \"" + w2 + "\"!");
 			else{
-				//for(int i = 0;i<result.size()-1;i++){
-				for(int i = 0;i<result.size();i++){
-					tmp.append(result.get(i) + ", ");
+				String[] words = s.split(" ");
+				StringBuffer tmp = new StringBuffer();
+				for(int i = 0;i<words.length-2;i++){
+					tmp.append(words[i] + ", ");
 				}
-				//tmp.append("and " + result.get(result.size() - 1) + ".");
-				//s = "The bridge words from \"" + w1 + "\" to \"" + w2 + "\" are:" + tmp.toString();
-				s = tmp.toString();
+				tmp.append(((words.length>1)?"and ":" ") + words[words.length-1] + ".");
+				s = "The bridge words from \"" + w1 + "\" to \"" + w2 + "\" " + ((words.length>1)?"are:":"is:") + tmp.toString();
 			}
 		}
 		else if(G.getNodeSet().containsKey(w2)){
@@ -111,16 +99,17 @@ public class mainWindow {
 	
 	//create new sentence based on the bridge words
 	public static String generateNewText(Graph G, String inputText){
+		//return mode: new sentence do not need modify to the standard format
 		String[] words = inputText.split("[^a-zA-Z]+");
 		String temp = null;
 		String[] bridgeWords;
 		StringBuffer newSentence = new StringBuffer();
 		Random rand = new Random();
 		for(int i = 0;i<words.length-1;i++){//traverse the new text
-			temp = queryBridgeWords(G, words[i], words[i+1]);//find bridge words
+			temp = getBridgeWord(G, words[i], words[i+1]);//find bridge words
 			newSentence.append(words[i] + " ");
-			if(!temp.contains("!")){//if there is any bridge word exists
-				bridgeWords = temp.split(", ");
+			if(temp!=null){//if there is any bridge word exists
+				bridgeWords = temp.split(" ");
 				newSentence.append(bridgeWords[rand.nextInt(bridgeWords.length)] + " ");
 			}
 		}
@@ -142,9 +131,11 @@ public class mainWindow {
 	        BufferedReader reader = null;
 	        try {
 	            reader = new BufferedReader(new FileReader(file));
-	            if ((temp = reader.readLine()) == null) {
-	               System.out.print("File is empty!");
+	            StringBuffer tmp = new StringBuffer();
+	            while((temp = reader.readLine())!=null){
+	            	tmp.append(temp);
 	            }
+	            temp = tmp.toString();
 	            reader.close();
 	        } catch (IOException e) {
 	            e.printStackTrace();
@@ -161,14 +152,37 @@ public class mainWindow {
 		String[] words = temp.split("[^a-zA-Z]+");
 		//establish the Graph
 		Graph G = new Graph();
-		//transform the words to lower case & add words
-		for(int i =0;i<words.length;i++){
+		//transform the words to lower case
+		for(int i =0;i<words.length;i++)
 			words[i] = words[i].toLowerCase();
-			G.addNode(words[i]);
+		//find same words
+		Words testWord = new Words();
+		String[] newWord = new String[words.length];
+		int[] mark = new int[words.length];
+		newWord = words.clone();
+		for(int i =0;i<words.length;i++){
+			mark[i] = i;
+		}
+		for(int i = 0;i<words.length-1;i++){
+			for(int j = 0;j<words.length;j++){
+				if(mark[j] != j)
+					continue;
+				testWord.setWord1(words[i]);
+				testWord.setWord2(words[j]);
+				if(testWord.isSame()){
+					newWord[i] = testWord.getOriginWord();
+					newWord[j] = testWord.getOriginWord();
+					mark[j] = i;
+				}
+			}
+		}
+		//add words
+		for(int i = 0;i<words.length;i++){
+			G.addNode(newWord[mark[i]]);
 		}
 		//add edge
 		for(int i = 0;i<words.length -1;i++){
-			G.addEdge(words[i], words[i+1]);
+			G.addEdge(newWord[mark[i]], newWord[mark[i+1]]);
 		}
 		return G;
 	}
@@ -199,6 +213,7 @@ public class mainWindow {
 	
 	//search a path randomly
 	public static String randomWalk(Graph G){
+		//return mode : w1->w2->w3...
 		//define some variable and initialize them at the same time
 		Random random = new Random();
 		HashMap<String, Edge> map;
@@ -220,7 +235,79 @@ public class mainWindow {
 		return path.toString();
 	}
 
-	public static String calcShortestPath(Graph G, String word1, String word2){
+	//calculate the shortest path two (all possible solutions)
+	public static String calcShortestPath1(Graph G, String word1, String word2){
+		int minDistance = infinite;//the shortest distance
+		PriorityQueue<treeNodes> candidate = new PriorityQueue<treeNodes>(G.getVertexNum(), myCompare);
+		Map<String, HashMap<String, Edge>>tempMap = G.getNodeList();
+		treeNodes prNode = null;
+		//initialize the tree
+		treeNodes startPoint = new treeNodes(null, 0, word1);
+		for(String a : tempMap.get(word1).keySet()){
+			int tempWeight = tempMap.get(word1).get(a).getWeight();
+			treeNodes tempNode = new treeNodes(startPoint, tempWeight, a);
+			startPoint.getChildren().add(tempNode);
+			candidate.add(tempNode);
+		}
+		//expand the tree 
+		while(true){
+			prNode = candidate.poll();
+			if(prNode == null || prNode.getWord().equals(word2))
+				break;
+			if(!tempMap.containsKey(prNode.getWord())){
+				candidate.remove(prNode);
+				continue;
+			}
+			for(String b : tempMap.get(prNode.getWord()).keySet()){
+				boolean find = false;
+				int newDistance = prNode.getWeiht() + tempMap.get(prNode.getWord()).get(b).getWeight();
+				for(treeNodes tNode : candidate){
+					//if the new distance is shorter then update the tree
+					if(tNode.getWord() == b){
+						find = true;
+						if(tNode.getWeiht() > newDistance )
+							candidate.remove(tNode);
+						candidate.add(new treeNodes(prNode,newDistance, b));
+						break;
+					}
+				}
+				if(!find)
+					candidate.add(new treeNodes(prNode, newDistance, b));//add when the node never appear in the tree
+			}	
+		}
+		//trace back one route
+		if(prNode == null)
+			return ("Inaccessible form \"" + word1 +  "\" to \"" + word2 + "\"");
+		minDistance = prNode.getWeiht();
+		StringBuffer result = new StringBuffer();
+//		do{
+//			result.append(prNode.getWord() + "<-");
+//			prNode = prNode.getFather();
+//		}while(prNode.getWord() != word1);
+//		result.append(word1 + "\n");
+		//find other same distance route
+		candidate.add(prNode);
+		for(treeNodes dNodes : candidate){
+			if(dNodes.getWeiht() == minDistance && dNodes.getWord().equals(word2)){
+				//save route
+				prNode = dNodes;
+				List<String> tempList = new ArrayList<String>();
+				do{
+					tempList.add(prNode.getWord());
+					prNode = prNode.getFather();
+				}while(prNode.getWord() != word1);
+				result.append(word1);
+				Collections.reverse(tempList);
+				for(String aString : tempList)
+					result.append("->" + aString);
+				result.append("\n");
+			}
+		}
+		return result.toString().substring(0, result.length()-1);
+	}
+	
+	//calculate the shortest path one to all
+	public static String calcShortestPath2(Graph G, String word1){
 		int[] minDistance = new int[G.getVertexNum()];
 		int word1Sub = -1, word2Sub = -1;
 		Set<Integer> mark = new HashSet<Integer>();
@@ -238,8 +325,6 @@ public class mainWindow {
 				minDistance[i] = infinite;
 			else
 				word1Sub = i;
-			if(tempWord.equals(word2))
-				word2Sub = i;
 			path[i] = -1;
 			mark.add(i);
 		}
@@ -272,44 +357,105 @@ public class mainWindow {
 				}
 			}
 		}
-//		//get path(find one path)
-//		StringBuffer result = new StringBuffer();
-//		int subscript = word2Sub;
-//		boolean find = false;
-//		while(subscript != -1){
-//			result.append(G.getNodes().get(subscript).getWord() + "<-");
-//			subscript = path[subscript];
-//			if(subscript == word2Sub)
-//				find = true;
-//		}
-//		result.append(word1);
-//		return (find)?result.toString():null;
-		Set<Integer> destination = new HashSet<Integer>();
 		StringBuffer result = new StringBuffer();
-		if(word2 == null){
-			for(int i = 0;i<G.getVertexNum();i++){
-				if(i!=word1Sub)
-					destination.add(i);
-			}
-		}
-		else
-			destination.add(word2Sub);
 		int subscript;
 		StringBuffer tmp = new StringBuffer();
+		Set<Integer> destination = new HashSet<Integer>();
+		for(int i =0;i<G.getVertexNum();i++)
+			if(i!=word1Sub)
+				destination.add(i);
 		for(int a : destination){
 			if(a == -1)
 				continue;
 			subscript = a;
-			tmp.setLength(0);
+			//tmp.setLength(0);
+			List<String> tempList = new ArrayList<String>();
 			while(subscript != -1){
-				tmp.append(G.getNodes().get(subscript).getWord() + "<-");
+				tempList.add(G.getNodes().get(subscript).getWord());
+				//tmp.append(G.getNodes().get(subscript).getWord() + "<-");
 				subscript = path[subscript];
 			}
 			if(a != -1){
-				result.append(tmp + word1);
-				result.append("||");
+				//result.append(tmp + word1);
+				result.append(word1);
+				Collections.reverse(tempList);
+				for(String aString : tempList)
+					result.append("->" + aString);
+				result.append("\n");
 			}
 		}
-		return (destination.isEmpty())?null:result.toString();
+		return result.toString().substring(0, result.length()-1);
 	}
+	
+	public static String calcShortestPath(Graph G, String word1, String word2) {
+		//return mode 
+		//1. warning message
+		//2. w1<-w2<-...(attention! the path is reversed)
+		//3. w1<-w2<-... \n w3<-w4 ...
+		String result = null;
+		if(!G.getNodeSet().containsKey(word1)){
+			if(!G.getNodeSet().containsKey(word2))
+				result =  "No \"" + word1 + "\"" + " and \"" + word2 + "\" in the graph!";
+			else
+				result =  "No \"" + word1 + "\" in the graph!";
+		}
+		else if(!G.getNodeSet().containsKey(word2))
+			result =  "No \"" + word2 + "\" in the graph!";
+		else{
+			if(word2.length() == 0)
+				result = calcShortestPath2(G, word1);
+			else
+				result = calcShortestPath1(G, word1, word2);
+		}
+		return result;
+	}
+	
+	//ÄäÃûComparatorÊµÏÖ
+    public static Comparator<treeNodes> myCompare = new Comparator<treeNodes>(){
+ 
+        @Override
+        public int compare(treeNodes c1, treeNodes c2) {
+            return (int) (c1.getWeiht() - c2.getWeiht());
+        }
+    };
+
+	//get the bridge according to the graph
+    public static String getBridgeWord(Graph G, String w1, String w2){
+		ArrayList<String> result = new ArrayList<String>();
+		HashMap<String, Edge> e = G.getNodeList().get(w1);
+		for(String i : e.keySet()){
+			if(G.getNodeList().get(i)!=null&&G.getNodeList().get(i).containsKey(w2)){
+				result.add(i);
+			}
+		}
+		StringBuffer tmp = new StringBuffer();
+		for(String aString : result)
+			tmp.append(aString + " ");
+		return (result.size() == 0)?null:tmp.toString();
+	}
+
+    //set color to the line and point
+    public static void color(Graph G, String path, int mode){
+    	//mode 0 for vertex only 1 for both edge and vertex
+    	ArrayList<Node> vertex = G.getNodes();
+    	Map<String, HashMap<String, Edge>> edge = G.getNodeList();
+    	int sub = -1;
+    	String[] words = path.split("->| |//n");
+    	if(mode == 0){//color 1 for first point 2 for second ...
+    		int colorCode = 1;
+    		for(String aString : words){
+    			sub = G.getNodeSet().get(aString);
+    			vertex.get(sub).setColor(colorCode++);
+    		}
+    	}
+    	else{//color mode color 1 for start point 2 for edge 3 for end point 
+    		int len = words.length;
+    		sub = G.getNodeSet().get(words[0]);
+    		vertex.get(sub).setColor(1);
+    		for(int i = 0;i<len-1;i++)
+    			edge.get(words[i]).get(words[i+1]).setColor(2);
+    		sub = G.getNodeSet().get(words[len-1]);
+    		vertex.get(sub).setColor(3);
+    	}
+    }
 }

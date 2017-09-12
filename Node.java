@@ -1,8 +1,5 @@
 package lab1;
 
-import java.awt.Color;
-import java.util.Set;
-
 public class Node {
 	private String word;
 	private int color;
