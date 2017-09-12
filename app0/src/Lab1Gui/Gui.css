@@ -1,0 +1,90 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Sep 11, 2017, 3:29:03 PM
+    Author     : kkcckc
+*/
+.mycombobox .list-cell:hover{
+    -fx-background-color: #4DD0E1;
+}
+.mycombobox .list-cell:selected{
+    -fx-fil: #03A9F4;
+}
+
+.mycombobox .list-cell{
+    -fx-background-insets: 0.0;
+   /* -fx-background-color: #0091EA;*/
+}
+
+.mycombobox .jfx-list-rippler{
+    -fx-rippler-fill: grey;
+}
+
+.mycombobox .list-view{
+    -fx-background-insets: 0;
+    -fx-cell-vertical-margin: 10.0;
+    -fx-verticla-gap:10;
+}
+
+
+.mylistview .list-cell:hover{
+    -fx-background-color: #4DD0E1;
+}
+.mylistview .list-cell:selected{
+    -fx-background-color: #03A9F4;
+}
+
+.mylistview .list-cell{
+    -fx-background-insets: 0.0;
+   /* -fx-background-color: #0091EA;*/
+}
+
+.mylistview .jfx-list-rippler{
+    -fx-rippler-fill: grey;
+}
+
+
+
+.mylistview .list-view{
+    -fx-background-insets: 0;
+    -fx-cell-vertical-margin: 10.0;
+    -fx-verticla-gap:10;
+}
+
+
+.myscrollbar .scroll-bar:horizontal .track,
+.myscrollbar .scroll-bar:vertical .track{
+    -fx-background-color:white;
+    -fx-border-color:white;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+/* The increment and decrement button CSS class of scrollbar */
+.myscrollbar .scroll-bar:horizontal .increment-button ,
+.myscrollbar .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+/* The increment and decrement button CSS class of scrollbar */
+.myscrollbar .scroll-bar:vertical .increment-button ,
+.myscrollbar .scroll-bar:vertical .decrement-button {
+    -fx-background-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+.myscrollbar  .scroll-bar .increment-arrow,
+.myscrollbar  .scroll-bar .decrement-arrow{
+    -fx-shape: " ";
+    -fx-padding:0;
+}
+/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+.myscrollbar .scroll-bar:horizontal .thumb,
+.myscrollbar .scroll-bar:vertical .thumb {
+    -fx-background-color:derive(black,90%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}

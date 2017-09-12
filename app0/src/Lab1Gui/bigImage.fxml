@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import java.net.URL?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane fx:id="biPanel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="679.0" prefWidth="1046.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Lab1Gui.BigImageController">
+   <children>
+      <BorderPane layoutX="69.0" layoutY="54.0">
+         <center>
+            <ImageView id="image" fx:id="biImage" fitHeight="572.0" fitWidth="909.0" onKeyPressed="#keyPressed" onMouseClicked="#mouseClicked" pickOnBounds="true" preserveRatio="true" />
+         </center>
+      </BorderPane>
+      <JFXButton contentDisplay="CENTER" ellipsisString="" layoutX="1072.0" layoutY="25.0" onAction="#closeAll" prefHeight="11.0" prefWidth="13.0" ripplerFill="WHITE" text=" " AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="25.0">
+         <graphic>
+            <FontAwesomeIconView fill="#ed5351" glyphName="CLOSE" size="25.0" style="-fx-fill: #E0E0E0;" styleClass="awe-button" />
+         </graphic>
+         <stylesheets>
+            <URL value="@closebutton.css" />
+            <URL value="@closebutton2.css" />
+         </stylesheets>
+      </JFXButton>
+      <Text fx:id="biText" layoutX="509.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0">
+         <font>
+            <Font size="32.0" />
+         </font></Text>
+   </children>
+</AnchorPane>

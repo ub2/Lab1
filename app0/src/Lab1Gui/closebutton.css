@@ -1,0 +1,15 @@
+.jfx-button:hover{
+	-fx-background-color: #f44336;
+}
+.jfx-button {
+	-fx-background-color: #F5F5F5;
+}
+.awe-button {
+	-fx-fill: #f44336;
+}
+.awe-button:hover {
+	-fx-fill: #F5F5F5;
+}
+
+
+
