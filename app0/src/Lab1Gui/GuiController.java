@@ -1,11 +1,11 @@
 package Lab1Gui;
 
-import Main.MainController;
 import lab1.*;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import com.jfoenix.effects.JFXDepthManager;
@@ -78,9 +78,6 @@ public class GuiController implements Initializable {
     private AnchorPane winBorder;
     @FXML
     private JFXComboBox<Label> combobox;
-    //private TextArea resultText;
-    @FXML
-    private JFXButton run;
     @FXML
     private JFXTextField word2;
     @FXML
@@ -129,40 +126,53 @@ public class GuiController implements Initializable {
     private TextArea resultText;
     @FXML
     private JFXCheckBox systemImageViewer;
-    private double mouseEventX = 0,
-            mouseEventY = 0,
-            sceneWidth = 0,
+
+    private double sceneWidth = 0,
             sceneHeight = 0,
             startX = 0, startY = 0;
+    @FXML
+    private JFXButton stopButton;
+    @FXML
+    private JFXButton pauseButton;
+    @FXML
+    private FontAwesomeIconView pauseIcon;
+    @FXML
+    private JFXButton runButton;
+    @FXML
+    private JFXSlider slider;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //stage = (Stage)rootPanel.getScene().getWindow();
         scene = rootPanel.getScene();
-        //stage = (Stage)scene.getWindow();
         combobox.getItems().add(new Label("Query Bridge Words"));
         combobox.getItems().add(new Label("Generate New Text"));
         combobox.getItems().add(new Label("Calc Shortest Path"));
         combobox.getItems().add(new Label("Random Walk"));
         image.setPreserveRatio(true);
-        //width
-        //image.fitWidthProperty().set(image.getBoundsInParent().getWidth());
+        resultList.getItems().add(" ");
+        resultList.getItems().clear();
+        resultList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue == null || newValue.isEmpty()) {
+                    return;
+                }
+                g.color(newValue.substring(3), 1);
+                reloadImage();
+            }
+        });
 
-        //image.fitWidthProperty().bind(imagePanel.widthProperty());
-        //System.out.println(imagePanel.getWidth());
-        //image.setFitWidth();
-        //image.setFitHeight(image.getBoundsInParent().getWidth());
-        //image.setFitWidth(300-10);
         word1.setVisible(false);
         word2.setVisible(false);
         word3.setVisible(false);
         wordBox.setVisible(false);
         lab1 = new mainWindow();
         g = null;
-        scene = combobox.getScene();
-        //System.out.println(image.getBoundsInParent().getWidth());
-        //System.out.println(rootPanel.getWidth());
+        //fileText
         fileText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (myThread != null) {
+                myThread.stop();
+            }
             try (PrintWriter out = new PrintWriter("tmp.txt")) {
                 out.println(newValue);
             } catch (FileNotFoundException ex) {
@@ -170,9 +180,11 @@ public class GuiController implements Initializable {
             }
             reGenerateGraph();
         });
-        JFXDepthManager.setDepth(settingPanel, 1);
-        //JFXDepthManager.setDepth(saveButton, 1);
 
+        JFXDepthManager.setDepth(settingPanel, 1);
+        //settingPanel.toFront();
+        //settingPanel.toBack();
+        //settingPanel.toBack();
         //resize
         rightPanel.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
             scene = rightPanel.getScene();
@@ -183,15 +195,19 @@ public class GuiController implements Initializable {
             }
         });
 
-//settint panel
-        settingPanel.setVisible(false);
+        //settint panel
+        settingBoard.setVisible(false);
+        settingBoard.setDisable(true);
         settingButtton.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
             settingButtton.setStyle("-fx-fill: #00ACC1");
-            settingPanel.setVisible(true);
+            settingBoard.setVisible(true);
+            settingBoard.setDisable(false);
         });
+
         settingBoard.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
             settingButtton.setStyle("-fx-fill: black");
-            settingPanel.setVisible(false);
+            settingBoard.setVisible(false);
+            settingBoard.setDisable(true);
         });
 
         //save button
@@ -215,7 +231,6 @@ public class GuiController implements Initializable {
             } catch (IOException ex) {
                 Logger.getLogger(GuiController.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         });
 
         //closeX
@@ -245,79 +260,50 @@ public class GuiController implements Initializable {
             if (oneShortestWay.isSelected()) {
                 resultText.setVisible(true);
                 resultList.getSelectionModel().selectFirst();
-                g.resetColor();
-                lab1.color(g, tempString, colorMode);
-                //resultList.getSelectionModel().select(-1);
-                //resultList.getSelectionModel().select(0);
-                //resultList.getSelectionModel().clearAndSelect(0);
-
-                //resultList.getSelectionModel().select(0);
-                reloadImage();
+                g.color(tempString, colorMode);
             } else {
-                //resultList.getItems().clear();
                 resultText.setVisible(false);
                 resultList.getSelectionModel().selectFirst();
-                g.resetColor();
+                g.color(tempString, colorMode);
+            }
+            reloadImage();
+        });
 
-                lab1.color(g, tempString, colorMode);
-                //resultList.getSelectionModel().clearAndSelect(0);
-
-//                if (resultList.getItems().isEmpty()) {
-//                    //TOdo rerun all way
-//                   
-//                }
+        stopButton.addEventFilter(ActionEvent.ACTION, e -> {
+            pauseIcon.setGlyphName("PAUSE");
+            pauseIcon.setStyle("-fx-fill: #673ab7");
+            if (myThread != null) {
+                myThread.stop();
             }
         });
-        resultList.getItems().add(" ");
-        resultList.getItems().clear();
 
-        resultList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+        pauseButton.addEventFilter(ActionEvent.ACTION, e -> {
+            if (pauseIcon.getGlyphName().equals("PAUSE")) {
+                pauseIcon.setGlyphName("PLAY");
+                pauseIcon.setStyle("-fx-fill: #40C4FF");
+                try {
+                    myThread.pause();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(GuiController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                pauseIcon.setGlyphName("PAUSE");
+                pauseIcon.setStyle("-fx-fill: #673ab7");
+                myThread.resume();
+            }
+        });
+
+        slider.setVisible(false);
+        slider.setValue(2);
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println(newValue);
-                g.resetColor();
-                lab1.color(g, newValue, 1);
-                //lab1.color(g, newValue, 0);
-                reloadImage();
+            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
+                if (myThread != null) {
+                    myThread.setDelay(slider.getValue() * 1000);
+                }
             }
-            //todo
         });
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.getItems().add("Some quite long string to demonstrate the problem");
-//        resultList.setCellFactory(lv -> {
-//            ListCell<String> cell = new ListCell<String>() {
-//                private Label label = new Label();
-//
-//                {
-//                    label.setWrapText(alwaysWrapText.isSelected());
-//                    label.maxWidthProperty().bind(Bindings.createDoubleBinding(
-//                            () -> getWidth() - getPadding().getLeft() - getPadding().getRight() - 1,
-//                            widthProperty(), paddingProperty()));
-//                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-//                }
-//
-//                @Override
-//                protected void updateItem(String item, boolean empty) {
-//                    super.updateItem(item, empty);
-//                    if (empty) {
-//                        setGraphic(null);
-//                    } else {
-//                        label.setText(item);
-//                        setGraphic(label);
-//                    }
-//                }
-//            };
-//            return cell;
-//        });
+        fileText.setText("a b c a d c");
     }
 
     private double imagePanelWidth = 0;
@@ -326,11 +312,9 @@ public class GuiController implements Initializable {
 
     private void closeImagePanel() {
         imagePanelWidth = imagePanel.getWidth();
-        //System.out.println(imagePanelWidth);
         stage = (Stage) rootPanel.getScene().getWindow();
         stage.setWidth(rightPanel.getWidth());
         imagePanel.setMinWidth(0);
-        //stage.setWidth(rightPanel.getWidth());
         stage.setX(stage.getX() + imagePanelWidth);
         isPanelClose = true;
         minWidth = minWidth - 300;
@@ -338,8 +322,6 @@ public class GuiController implements Initializable {
 
     private void openImagePanel() {
         isPanelClose = false;
-        //imagePanel.setMinWidth(0);
-        //stage.setWidth(rightPanel.getWidth());
         imagePanel.setMinWidth(300);
         stage.setWidth(rightPanel.getWidth() + imagePanelWidth);
         stage.setX(stage.getX() - imagePanelWidth);
@@ -365,39 +347,23 @@ public class GuiController implements Initializable {
             tips.setStyle("-fx-fill:  #c62828");
         }
         //reload to biImage 
-        //if (childController!=null){
-        //childController.undateImage();
-        try {
+        if (childController != null) {
             childController.undateImage();
-        } catch (Exception e) {
         }
-        //}else{
-        //System.out.println("Lab1Gui.GuiController.reloadImage()");
-        // }
     }
 
     private void reGenerateGraph() {
         try {
             this.g = lab1.createDirectedGraph("tmp.txt");
         } catch (Exception e) {
-            //tips.setText("file exist but create graph failed");
-            //tips.setStyle("-fx-fill:  #c62828");
         }
         reloadImage();
-//        try {
-//            TimeUnit.SECONDS.sleep(2);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(GuiController.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
 
-    private void showTips(String text, String style) {
-        ;
-    }
     private String tempString = "";
 
     @FXML
-    private void runOperation(ActionEvent event) {
+    private void runOperation(ActionEvent event) throws Exception {
         resultList.getItems().clear();
         resultText.setText("");
         resultText.setVisible(true);
@@ -410,7 +376,6 @@ public class GuiController implements Initializable {
             return;
         }
         if (index == 0) {
-
             String w1 = word1.getText(), w2 = word2.getText();
             if (w1.isEmpty() || w2.isEmpty()) {
                 tips.setText("please input two word");
@@ -422,7 +387,6 @@ public class GuiController implements Initializable {
                 tips.setText("query bridge words failed");
             }
             resultText.setText(result);
-            //lab1.color(g, result, 0);
         } else if (index == 1) {
             if (word3.getText().isEmpty()) {
                 tips.setText("please input some text");
@@ -432,11 +396,8 @@ public class GuiController implements Initializable {
                 result = lab1.generateNewText(g, word3.getText());
             } catch (Exception e) {
                 tips.setText("generate new text failed");
-                System.out.println(e);
-
             }
             resultText.setText("new text generated: \n" + result);
-            //lab1.color(g, result, 1);
         } else if (index == 2) {
             String w1 = word1.getText(), w2 = word2.getText();
             if (w1.isEmpty() && w2.isEmpty()) {
@@ -448,17 +409,16 @@ public class GuiController implements Initializable {
                 w2 = w;
             }
             String beforeString = "one shortest path from \"" + w1 + "\" to \"" + w2 + "\": \n";
-            //beforeLength = beforeString.length();
             try {
                 result = lab1.calcShortestPath(g, w1, w2);
-                System.out.println(w1 + w2 + result);
             } catch (Exception e) {
                 tips.setText("calc shortest path failed");
             }
-            //resultText.setText(beforeString + result);
             String[] results = result.split("\n");
-            if (results[0].isEmpty()) {
+            if (results == null || results[0].isEmpty() || results[0].startsWith("No ")) {
+                tempString = "";
                 tips.setText("no way fonud");
+                resultText.setText(results[0]);
                 return;
             }
             resultText.setText(beforeString + results[0]);
@@ -466,45 +426,61 @@ public class GuiController implements Initializable {
                 resultText.setVisible(false);
             }
             for (String i : results) {
-                resultList.getItems().add(i);
+                resultList.getItems().add(resultList.getItems().size() + ". " + i);
             }
-            //lab1.color(g, results[0], colorMode);
-            if (!tempString.contains("\""))
             tempString = results[0];
-            else
-                tempString="";
         } else if (index == 3) {
-            try {
-                result = lab1.randomWalk(g);
-            } catch (Exception e) {
-                tips.setText("random walk failed");
-            }
-            resultText.setText("random walking: \n" + result);
-            lab1.color(g, result, colorMode);
+            myThread = new MyThread(g);
+            randomWalkThread = new Thread(myThread);
+            myThread.setDelay(slider.getValue() * 1000);
+            myThread.getResult().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                    resultText.setText(t1);
+                    g.color(t1, colorMode);
+                    reloadImage();
+                }
+            });
+
+            myThread.getAlivepProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                    runButton.setVisible(!t1);
+                }
+            });
+
+            randomWalkThread.start();
+
         } else {
             tips.setText("please select an operation");
             return;
         }
-        reloadImage();
+        if (index != 3) {
+            reloadImage();
+        }
         tips.setText("");
         tips.setStyle("-fx-fill:  #212121");
     }
+
     private int colorMode = 1;
+    private Thread randomWalkThread = null;
+    private MyThread myThread = null;
 
     @FXML
     private void comboxboxSelect(ActionEvent event) {
         Integer index = combobox.getSelectionModel().getSelectedIndex();
+        wordBox.setVisible(false);
+        word1.setVisible(false);
+        word2.setVisible(false);
+        word3.setVisible(false);
+        slider.setVisible(false);
         if (index == 0) {
             wordBox.setVisible(true);
             word1.setVisible(true);
             word2.setVisible(true);
-            word3.setVisible(false);
             tips.setText("Please input one or two word");
             tips.setStyle("-fx-fill:  #1565C0");
         } else if (index == 1) {
-            wordBox.setVisible(false);
-            word1.setVisible(false);
-            word2.setVisible(false);
             word3.setVisible(true);
             tips.setText("Please input some text");
             tips.setStyle("-fx-fill:  #1565C0");
@@ -512,21 +488,13 @@ public class GuiController implements Initializable {
             wordBox.setVisible(true);
             word1.setVisible(true);
             word2.setVisible(true);
-            word3.setVisible(false);
             tips.setText("Please input one or two word");
             tips.setStyle("-fx-fill:  #1565C0");
         } else if (index == 3) {
-            wordBox.setVisible(false);
-            word3.setVisible(false);
-            word1.setVisible(false);
-            word2.setVisible(false);
+            slider.setVisible(true);
             tips.setText("Click Run to start");
             tips.setStyle("-fx-fill:  #1565C0");
         } else {
-            wordBox.setVisible(false);
-            word1.setVisible(false);
-            word2.setVisible(false);
-            word3.setVisible(false);
             tips.setText("");
             tips.setStyle("-fx-fill: #212121");
         }
@@ -534,7 +502,6 @@ public class GuiController implements Initializable {
 
     @FXML
     private void fileDragOver(DragEvent event) {
-        //System.out.println("Lab1Gui.GuiController.fileDragOver()");
         if (event.getDragboard().hasFiles()) {
             event.acceptTransferModes(TransferMode.ANY);
         }
@@ -544,13 +511,11 @@ public class GuiController implements Initializable {
     private void fileDragDropped(DragEvent event) throws FileNotFoundException {
         fileText.setText("");
         Dragboard db = event.getDragboard();
-        //System.out.println("a");
         if (db.hasFiles()) {
             List<File> files = event.getDragboard().getFiles();
             String filePath = files.get(0).getAbsolutePath().toString();
             //accept all file types
             String content = "";
-            //System.out.println(filePath);
             try {
                 content = new Scanner(new File(filePath)).useDelimiter("\\Z").next();
             } catch (FileNotFoundException ex) {
@@ -559,37 +524,17 @@ public class GuiController implements Initializable {
                 tips.setStyle("-fx-fill:  #c62828");
             }
             fileText.setText(content);
-
         }
-
     }
 
     @FXML
-    private void pressEnterToRun(KeyEvent event) {
+    private void pressEnterToRun(KeyEvent event) throws Exception {
         if (event.getCode() == KeyCode.ENTER) {
+            if (randomWalkThread != null && randomWalkThread.isAlive()) {
+                myThread.stop();
+            }
             runOperation(new ActionEvent());
         }
-    }
-
-    private void test() {
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-        resultList.getItems().add("Some quite long string to demonstrate the problem");
-    }
-
-    @FXML
-    private void dragImage(MouseEvent event) {
-        ;
     }
 
     @FXML
@@ -604,13 +549,10 @@ public class GuiController implements Initializable {
         scene.setCursor(Cursor.HAND);
     }
 
-    private double imagexOffset = 0;
-    private double imageyOffset = 0;
-    private Stage biStage = null;
+    private double imagexOffset = 0, imageyOffset = 0, xOffset = 0, yOffset = 0;
     private BigImageController childController = null;
 
     @FXML
-
     private void imageMouseClicked(MouseEvent event) throws IOException, InterruptedException {
         File file = new File("out.png");
         if (systemImageViewer.isSelected() || file.length() > 200 * 1000) {
@@ -619,26 +561,18 @@ public class GuiController implements Initializable {
             p.waitFor();
         } else {
             //open by bigImage
-            //Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(
                     getClass().getResource("bigImage.fxml"));
             Parent parent = (Parent) fxmlLoader.load();
-
             childController = fxmlLoader.getController();
-//            childController.currentCustomerProperty().addListener((obs, oldCustomer, newCustomer) -> {
-//                // do whatever you need with newCustomer....
-//            });
-
-            //Parent parent = FXMLLoader.load(getClass().getResource("bigImage.fxml"));
             Stage stage = new Stage(StageStyle.UNDECORATED);
             stage.setScene(new Scene(parent));
             stage.show();
-            //biStage = stage;
+            stage.setTitle("imageViewer");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("start.png")));
             ResizeHelper.addResizeListener(stage);
         }
     }
-
-    double xOffset = 0, yOffset = 0;
 
     @FXML
     private void panelMousePressed(MouseEvent event) {
@@ -669,7 +603,6 @@ public class GuiController implements Initializable {
             stage.setX(event.getScreenX() - xOffset);
             stage.setY(event.getScreenY() - yOffset);
         } else {
-            //System.out.println(event.getScreenX() + " "+startX);
             setStageWidth(event.getSceneX() + startX);
             setStageHeight(event.getSceneY() + startY);
         }
@@ -679,7 +612,6 @@ public class GuiController implements Initializable {
             minWidth = 0, minHeight = 300;
 
     private void setStageWidth(double width) {
-        //System.out.println(width);
         width = Math.min(width, maxWidth);
         width = Math.max(width, minWidth);
         stage.setWidth(width);
@@ -689,11 +621,6 @@ public class GuiController implements Initializable {
         height = Math.min(height, maxHeight);
         height = Math.max(height, minHeight);
         stage.setHeight(height);
-    }
-
-    @FXML
-    private void settingMouseEntered(MouseEvent event) {
-
     }
 
 }

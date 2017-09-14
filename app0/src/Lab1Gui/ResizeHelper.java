@@ -16,7 +16,33 @@ import javafx.stage.Stage;
  * @kkcckc based on @author Evgenii Kanivets
  */
 public class ResizeHelper {
-
+    //notes
+    //      list view wrap text setting
+//        resultList.setCellFactory(lv -> {
+//            ListCell<String> cell = new ListCell<String>() {
+//                private Label label = new Label();
+//
+//                {
+//                    label.setWrapText(alwaysWrapText.isSelected());
+//                    label.maxWidthProperty().bind(Bindings.createDoubleBinding(
+//                            () -> getWidth() - getPadding().getLeft() - getPadding().getRight() - 1,
+//                            widthProperty(), paddingProperty()));
+//                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+//                }
+//
+//                @Override
+//                protected void updateItem(String item, boolean empty) {
+//                    super.updateItem(item, empty);
+//                    if (empty) {
+//                        setGraphic(null);
+//                    } else {
+//                        label.setText(item);
+//                        setGraphic(label);
+//                    }
+//                }
+//            };
+//            return cell;
+//        });
     public static void addResizeListener(Stage stage) {
         addResizeListener(stage, 0, 0, Double.MAX_VALUE, Double.MAX_VALUE);
     }

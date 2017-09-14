@@ -4,6 +4,7 @@
 <?import com.jfoenix.controls.JFXCheckBox?>
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXSlider?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import de.jensd.fx.glyphs.octicons.OctIconView?>
@@ -26,7 +27,7 @@
                <children>
                   <HBox alignment="CENTER" layoutY="126.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <ImageView fx:id="image" fitHeight="291.0" fitWidth="281.0" nodeOrientation="INHERIT" onDragDetected="#dragImage" onMouseClicked="#imageMouseClicked" onMouseEntered="#imageMouseEntered" onMouseExited="#imageMouseExited" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
+                        <ImageView fx:id="image" fitHeight="291.0" fitWidth="281.0" nodeOrientation="INHERIT" onMouseClicked="#imageMouseClicked" onMouseEntered="#imageMouseEntered" onMouseExited="#imageMouseExited" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
                            <image>
                               <Image url="@start.png" />
                            </image>
@@ -60,11 +61,6 @@
                      </font>
                   </JFXTextField>
                   <JFXComboBox fx:id="combobox" layoutX="36.0" layoutY="424.0" onAction="#comboxboxSelect" onKeyPressed="#pressEnterToRun" prefHeight="26.0" prefWidth="435.0" promptText="select an operation" styleClass="mycombobox" stylesheets="@Gui.css" unFocusColor="#5e46ff" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="36.0" AnchorPane.rightAnchor="74.0" />
-                  <JFXButton fx:id="run" buttonType="RAISED" layoutX="341.0" layoutY="499.0" onAction="#runOperation" onKeyPressed="#pressEnterToRun" prefHeight="48.0" prefWidth="119.0" ripplerFill="#90caf9" style="-: #0D47A1;" stylesheets="@runButton.css" text="Run" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="75.0">
-                     <font>
-                        <Font name="System Bold" size="19.0" />
-                     </font>
-                  </JFXButton>
                   <HBox fx:id="wordBox" layoutX="35.0" layoutY="475.0" onKeyPressed="#pressEnterToRun" prefHeight="48.0" prefWidth="303.0" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="207.0">
                      <children>
                         <JFXTextField fx:id="word1" focusColor="#0040ff" labelFloat="true" onKeyPressed="#pressEnterToRun" prefHeight="24.0" prefWidth="2000.0" promptText="word1" unFocusColor="#2196f3c7">
@@ -72,7 +68,7 @@
                               <Insets right="50.0" />
                            </HBox.margin>
                            <font>
-                              <Font size="16.0" />
+                              <Font size="14.0" />
                            </font>
                         </JFXTextField>
                         <JFXTextField fx:id="word2" focusColor="#0040ff" labelFloat="true" onKeyPressed="#pressEnterToRun" prefHeight="24.0" prefWidth="2000.0" promptText="word2" unFocusColor="#2196f3c7">
@@ -80,7 +76,7 @@
                               <Insets right="9.0" />
                            </HBox.margin>
                            <font>
-                              <Font size="16.0" />
+                              <Font size="14.0" />
                            </font>
                         </JFXTextField>
                      </children>
@@ -114,7 +110,7 @@
                   </VBox>
                   <AnchorPane fx:id="settingBoard" layoutX="384.0" layoutY="23.0" minWidth="-Infinity" prefHeight="238.0" prefWidth="169.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="23.0">
                      <children>
-                        <AnchorPane fx:id="settingPanel" prefHeight="196.0" prefWidth="173.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
+                        <AnchorPane fx:id="settingPanel" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="169.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
                            <children>
                               <JFXCheckBox fx:id="hideLeftPanel" checkedColor="#00c853" layoutX="38.0" layoutY="27.0" text="hide left panel" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="27.0" />
                               <JFXCheckBox fx:id="oneShortestWay" checkedColor="#00c853" layoutX="14.0" layoutY="68.0" text="one shortest way" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="68.0" />
@@ -127,7 +123,6 @@
                            <padding>
                               <Insets left="10.0" right="10.0" />
                            </padding></AnchorPane>
-                        <OctIconView fx:id="settingButtton" glyphName="CHEVRON_DOWN" onMouseEntered="#settingMouseEntered" size="29" style=": hover: black;" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="-3.0" />
                      </children>
                   </AnchorPane>
                   <JFXButton fx:id="closeButton" contentDisplay="CENTER" ellipsisString="" layoutX="510.0" layoutY="14.0" onAction="#closeAll" prefHeight="11.0" prefWidth="27.0" ripplerFill="#fafafa" stylesheets="@closebutton.css" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
@@ -140,6 +135,32 @@
                         <Font size="14.0" />
                      </font>
                   </Text>
+                  <JFXButton fx:id="stopButton" contentDisplay="CENTER" layoutX="341.0" layoutY="499.0" onKeyPressed="#pressEnterToRun" prefHeight="48.0" prefWidth="46.0" ripplerFill="#f44336" style="-fx-background-color: F5F5F5;" stylesheets="@runButton.css" text=" " textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="75.0">
+                     <font>
+                        <Font name="System Bold" size="19.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="#f44336" glyphName="STOP" size="25" />
+                     </graphic>
+                  </JFXButton>
+                  <JFXButton fx:id="pauseButton" contentDisplay="CENTER" layoutX="351.0" layoutY="509.0" onKeyPressed="#pressEnterToRun" prefHeight="48.0" prefWidth="46.0" ripplerFill="#838383" style="-fx-background-color: #F5F5F5;" stylesheets="@runButton.css" text=" " textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="136.0">
+                     <font>
+                        <Font name="System Bold" size="19.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fx:id="pauseIcon" fill="#673ab7" glyphName="PAUSE" size="25" />
+                     </graphic>
+                  </JFXButton>
+                  <JFXButton fx:id="runButton" buttonType="RAISED" contentDisplay="CENTER" layoutX="351.0" layoutY="509.0" minWidth="0.0" onAction="#runOperation" onKeyPressed="#pressEnterToRun" prefHeight="48.0" prefWidth="119.0" ripplerFill="WHITE" style="-: #03A9F4;" stylesheets="@runButton.css" text=" " textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="75.0">
+                     <font>
+                        <Font name="System Bold" size="19.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITESMOKE" glyphName="PLAY" size="25" />
+                     </graphic>
+                  </JFXButton>
+                  <JFXSlider fx:id="slider" blockIncrement="0.0" layoutX="36.0" layoutY="467.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" prefHeight="38.0" prefWidth="293.0" showTickLabels="true" showTickMarks="true" value="3.0" AnchorPane.bottomAnchor="-5.0" AnchorPane.leftAnchor="36.0" AnchorPane.rightAnchor="206.0" />
+                  <OctIconView fx:id="settingButtton" glyphName="CHEVRON_DOWN" layoutX="276.0" layoutY="32.0" size="29" style=": hover: black;" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="20.0" />
                </children>
                <padding>
                   <Insets bottom="60.0" />

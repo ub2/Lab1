@@ -4,8 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import javax.naming.spi.DirStateFactory.Result;
 
@@ -17,7 +23,7 @@ public class mainWindow {
     private static final int infinite = 1000;
     //private String filePath;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Scanner in = new Scanner(System.in);
         System.out.println("Choose the input mode: 0 for file, 1 for console");
         //int option = in.nextInt();
@@ -45,23 +51,22 @@ public class mainWindow {
 //		System.out.println(queryBridgeWords(G, word1, word2));
         //showDirectedGraph(G);
         //test shortest path
-        String w1, w2;
-        //while(true){
-        w1 = in.next();
-        w2 = in.next();
-        String path = calcShortestPath(G, w1, w2);
-        System.out.println(path);
-        String[] Words = path.split("\n");
-        color(G, Words[0], 1);
-        showDirectedGraph(G);
+//        String w1, w2;
+//        //while(true){
+//        w1 = in.next();
+//        w2 = in.next();
+//        String path = calcShortestPath(G, w1, w2);
+//        System.out.println(path);
+//        String[] Words = path.split("\n");
+//        G.color( Words[0], 1);
+//        showDirectedGraph(G);
+        //}
+        //test random walk
+        //for (int i = 0; i < 20; i++) {
+        System.out.println(randomWalk(G));
         //}
 
-//		//test random walk
-//		for(int i =0;i<20;i++){
-//		System.out.println(randomWalk(G));
-//		}
-//		
-//		//test create new text
+        //test create new text
 //		String newText;
 //		newText = "Seek to explore new and exciting synergies";
 //		newText = generateNewText(G, newText);
@@ -83,7 +88,7 @@ public class mainWindow {
                 }
 
                 for (String w : words) {
-                    color(G, w1 + " " + w + " " + w2, 1);
+                    G.color( w1 + " " + w + " " + w2, 1);
                 }
                 tmp.append(((words.length > 1) ? "and " : " ") + words[words.length - 1] + ".");
                 s = "The bridge words from \"" + w1 + "\" to \"" + w2 + "\" " + ((words.length > 1) ? "are:" : "is:") + tmp.toString();
@@ -118,12 +123,10 @@ public class mainWindow {
             }
         }
         if (colorVertex.length() != 0) {
-
             //System.out.println(colorVertex.toString());
-            color(G, colorVertex.toString(), 0);
+            G.color( colorVertex.toString(), 0);
         }
         newSentence.append(words[words.length - 1]);
-        //System.out.println(newSentence.toString());
         return newSentence.length() == 0 ? "" : newSentence.toString();
     }
 
@@ -200,14 +203,13 @@ public class mainWindow {
 
     //create the graph based on the data
     public static void showDirectedGraph(Graph G) {
-        //white black blue bluestart blueend
+        //white black blue blueStart blueEnd
         List<String> color = Arrays.asList("#F5F5F5", "#424242", "#84FFFF", "#82B1FF", "#B9F6CA", "#0091EA");
         GraphViz gv = new GraphViz();
         gv.addln(gv.start_graph());
         Map<String, HashMap<String, Edge>> g = G.getNodeList();
         for (Node a : G.getNodes()) {
             gv.addln(a.getWord() + "[style=filled] " + " [fillcolor =\"" + color.get(a.getColor()) + "\"];");
-//            gv.addln(a.getWord() + " [fillcolor =" + color.get(a.getColor())+ "];");
         }
         for (String i : g.keySet()) {
             HashMap<String, Edge> k = g.get(i);
@@ -223,30 +225,35 @@ public class mainWindow {
         G.resetColor();
     }
 
-    //search a path randomly
-    public static String randomWalk(Graph G) {
-        //return mode : w1->w2->w3...
-        //define some variable and initialize them at the same time
-        Random random = new Random();
-        HashMap<String, Edge> map;
-        //ArrayList <String> tempList;
-        String[] tempList;
-        StringBuffer path = new StringBuffer();
-        //generate a word randomly
-        String tempPath = G.getNodes().get(random.nextInt(G.getVertexNum())).getWord();//get first word
-        String nextWord = tempPath;
-        boolean stop = false;//control the stop by key event
-        while (tempPath != null && path.indexOf(tempPath) == -1 && !stop) {
-            path.append(tempPath);//add path
-            map = G.getNodeList().get(nextWord);
-            if (map == null) {
-                break; //if there is no road then exit
+    public static String randomWalk(Graph G) throws IOException, InterruptedException {
+        SimpleStringProperty result = null;
+        MyThread myThread = new MyThread(G);
+        Thread randomWalkThread = new Thread(myThread);
+        randomWalkThread.start();
+        result = myThread.getResult();
+        result.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                System.out.println(t1);
             }
-            tempList = map.keySet().toArray(new String[0]);
-            nextWord = (tempList.length >= 1) ? tempList[random.nextInt(tempList.length)] : null;
-            tempPath = (nextWord == null) ? null : ("->" + nextWord);//record the path
+        });
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String line = "";
+        while (line.equalsIgnoreCase("quit") == false) {
+            line = in.readLine();
+            if (line.equals("p")) {
+                System.out.println("paused");
+                myThread.pause();
+            } else if (line.equals("r")) {
+                System.out.println("resumed");
+                myThread.resume();
+            } else if (line.equals("")) {
+                myThread.stop();
+                break;
+            }
         }
-        return path.toString();
+        in.close();
+        return result.get();
     }
 
     //calculate the shortest path two (all possible solutions)
@@ -426,7 +433,7 @@ public class mainWindow {
             } else {
                 result = "No \"" + word1 + "\" in the graph!";
             }
-        } else if (!G.getNodeSet().containsKey(word2)) {
+        } else if (!G.getNodeSet().containsKey(word2) && !word2.isEmpty()) {
             result = "No \"" + word2 + "\" in the graph!";
         } else {
             if (word2.length() == 0) {
@@ -434,7 +441,7 @@ public class mainWindow {
             } else {
                 result = calcShortestPath1(G, word1, word2);
             }
-            color(G, result.split("\n")[0], 1);
+            G.color( result.split("\n")[0], 1);
         }
         return result;
     }
@@ -465,35 +472,5 @@ public class mainWindow {
         }
         return (result.size() == 0) ? null : tmp.toString();
     }
-
-    //set color to the line and point
-    public static void color(Graph G, String path, int mode) {
-        if(path.isEmpty())return;
-        ArrayList<Node> vertex = G.getNodes();
-        Map<String, HashMap<String, Edge>> edge = G.getNodeList();
-        String[] words = path.split("->| |//n");
-        System.out.println("  " + path);
-        if (mode == 0) {//just vertexs
-            for (String aString : words) {
-                if (G.getNodeSet().get(aString) != null) {
-                    vertex.get(G.getNodeSet().get(aString)).setColor(2);
-                }
-            }
-        } else {//start ->paths ->end
-            int len = words.length;
-            for (int i = 0; i < len - 1; i++) {
-                if (edge.get(words[i]) != null && edge.get(words[i]).get(words[i + 1]) != null) {
-                    edge.get(words[i]).get(words[i + 1]).setColor(5);
-                }
-                if (G.getNodeSet().get(words[i + 1]) != null) {
-                    vertex.get(G.getNodeSet().get(words[i + 1])).setColor(2);
-                }
-            }
-            if (G.getNodeSet().get(words[0])!=null)
-            vertex.get(G.getNodeSet().get(words[0])).setColor(4);
-                        if (G.getNodeSet().get(words[len - 1])!=null)
-
-            vertex.get(G.getNodeSet().get(words[len - 1])).setColor(3);
-        }
-    }
+    
 }

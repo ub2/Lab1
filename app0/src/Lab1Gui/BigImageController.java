@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -31,31 +33,29 @@ public class BigImageController implements Initializable {
     private AnchorPane biPanel;
     @FXML
     private ImageView biImage;
-    @FXML
-    private Text biText;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        biText.setText("");
-        biText.setStyle("-fx-fill:  #c62828");
+
+        Image img=null;
         try {
-            biImage.setImage(new Image(new FileInputStream("out.png")));
-        } catch (FileNotFoundException e) {
-            biText.setText("image load failed");
-            //biText.setStyle("-fx-fill:  #c62828");
+            img = new Image(new FileInputStream("out.png"));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(BigImageController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        biImage.setImage(img);
+        biPanel.setMinWidth(0);
+        //biPanel.setPrefWidth(img.getWidth());
         //biPanel.setCenterShape(true);
     }
-    
-    
-    
+
     @FXML
     private void keyPressed(KeyEvent event) {
         ((Stage) biImage.getScene().getWindow()).close();
-         //       ((Stage) image.getScene().getWindow()).close();
     }
 
     @FXML
@@ -67,13 +67,11 @@ public class BigImageController implements Initializable {
     private void closeAll(ActionEvent event) {
         ((Stage) biImage.getScene().getWindow()).close();
     }
-    
+
     public void undateImage() {
-        biText.setText("");
         try {
             biImage.setImage(new Image(new FileInputStream("out.png")));
         } catch (FileNotFoundException e) {
-            biText.setText("image load failed");
             //biText.setStyle("-fx-fill:  #c62828");
         }
     }
