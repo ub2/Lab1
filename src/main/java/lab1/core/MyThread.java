@@ -3,6 +3,7 @@ package lab1.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ public class MyThread implements Runnable {
 
     public MyThread(Graph G) {
         this.G = G;
+        this.mList = G.getNodeList();
     }
 
     public void stop() {
@@ -117,9 +119,11 @@ public class MyThread implements Runnable {
         return (SimpleBooleanProperty) this.isAliveProperty;
     }
 
+    private Map<String, HashMap<String, Edge>> mList;
+    //add private mList for CPU optimization, initialized with getNodeList();
     public String moveOneStep(Graph G, String presentWord) {
         Random random = new Random();
-        HashMap<String, Edge> map = G.getNodeList().get(presentWord);
+        HashMap<String, Edge> map = mList.get(presentWord);
         if (map == null) {
             return null; //if there is no road then exit
         }
