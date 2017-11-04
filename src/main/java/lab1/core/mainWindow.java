@@ -90,12 +90,13 @@ public class mainWindow {
         for (int i = 0; i < words.length - 1; i++) {
           tmp.append(words[i] + ", ");
         }
-
         for (String w : words) {
           G.color(w1 + " " + w + " " + w2, 1);
         }
-        tmp.append(((words.length > 1) ? "and " : " ") + words[words.length - 1] + ".");
-        s = "The bridge words from \"" + w1 + "\" to \"" + w2 + "\" " + ((words.length > 1) ? "are:" : "is:") + tmp.toString();
+        tmp.append(((words.length > 1) ? "and " : " ") +
+            words[words.length - 1] + ".");
+        s = "The bridge words from \"" + w1 + "\" to \"" + w2 +
+            "\" " + ((words.length > 1) ? "are:" : "is:") + tmp.toString();
       }
     } else if (G.getNodeSet().containsKey(w2)) {
       s = "No \"" + w1 + "\" in the graph!";
@@ -427,7 +428,8 @@ public class mainWindow {
       return null;
     }
     for (String i : e.keySet()) {
-      if (G.getNodeList().get(i) != null && G.getNodeList().get(i).containsKey(w2)) {
+      if (G.getNodeList().get(i) != null && 
+          G.getNodeList().get(i).containsKey(w2)) {
         result.add(i);
       }
     }
