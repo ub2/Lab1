@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 class GraphViz {
 
     //private static String TEMP_DIR = "e/tmp"; // Linux
-    private static String TEMP_DIR = "./tmp"; // Windows
+    private static String TEMP_DIR = "/tmp"; // Windows
 
     private static String DOT = "dot"; // Linux
     //private static String DOT = "D:\\Download\\GraphViz\\bin\\dot.exe";
