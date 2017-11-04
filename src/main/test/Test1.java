@@ -15,6 +15,6 @@ public class Test1 {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    assertEquals("No \"d\" in the graph!", main.queryBridgeWords(graph, "d", "c"));
+    assertEquals("o \"d\" in the graph!", main.queryBridgeWords(graph, "d", "c"));
   }
 }
