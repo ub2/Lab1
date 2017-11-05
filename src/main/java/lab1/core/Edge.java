@@ -1,5 +1,6 @@
 package lab1.core;
 
+
 public class Edge {
   private int color;
   private int weight;

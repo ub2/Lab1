@@ -1,20 +1,18 @@
 package lab1.core;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
 
 class GraphViz {
 
     //private static String TEMP_DIR = "e/tmp"; // Linux
-    private static String TEMP_DIR = "/tmp"; // Windows
+    private static String TEMP_DIR = "D:\\tmp"; // Windows
 
-    private static String DOT = "dot"; // Linux
-    //private static String DOT = "D:\\Download\\GraphViz\\bin\\dot.exe";
+    //private static String DOT = "dot"; // Linux
+    private static String DOT =  "D:/Download/GraphViz/bin/dot.exe";
     // (x86)\\Graphviz2.38\\bin\\dot.exe"; // Windows
     private StringBuilder graph = new StringBuilder();
 

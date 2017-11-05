@@ -3,20 +3,12 @@ package lab1.core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-
-import javax.naming.spi.DirStateFactory.Result;
-
-import org.omg.CORBA.FloatHolder;
 
 public class mainWindow {
 
@@ -29,7 +21,6 @@ public class mainWindow {
     int option = in.nextInt();
     //int option = 0;
     int count = 0;
-    
     if (option == 0) {
       System.out.println("Input file name(suffixed included):");
       do {
@@ -90,13 +81,12 @@ public class mainWindow {
         for (int i = 0; i < words.length - 1; i++) {
           tmp.append(words[i] + ", ");
         }
+
         for (String w : words) {
           G.color(w1 + " " + w + " " + w2, 1);
         }
-        tmp.append(((words.length > 1) ? "and " : " ") +
-            words[words.length - 1] + ".");
-        s = "The bridge words from \"" + w1 + "\" to \"" + w2 +
-            "\" " + ((words.length > 1) ? "are:" : "is:") + tmp.toString();
+        tmp.append(((words.length > 1) ? "and " : " ") + words[words.length - 1] + ".");
+        s = "The bridge words from \"" + w1 + "\" to \"" + w2 + "\" " + ((words.length > 1) ? "are:" : "is:") + tmp.toString();
       }
     } else if (G.getNodeSet().containsKey(w2)) {
       s = "No \"" + w1 + "\" in the graph!";
@@ -227,6 +217,7 @@ public class mainWindow {
     treeNodes prNode = null;
     //initialize the tree
     treeNodes startPoint = new treeNodes(null, 0, word1);
+    List<treeNodes> finalNode = new ArrayList<treeNodes>();
     if (tempMap.get(word1) != null) {
       for (String a : tempMap.get(word1).keySet()) {
         int tempWeight = tempMap.get(word1).get(a).getWeight();
@@ -236,10 +227,16 @@ public class mainWindow {
       }
     }
     //expand the tree 
-    while (true) {
-      prNode = candidate.poll();
-      if (prNode == null || prNode.getWord().equals(word2)) {
-        break;
+    while (!candidate.isEmpty()) {
+      prNode = candidate.poll();//get next shortest path
+      //stop condition
+      if (prNode.getWord().equals(word2)) {
+        if(prNode.getWeiht() <= minDistance) {
+          minDistance = prNode.getWeiht();
+          finalNode.add(prNode);
+        } else {
+          break;
+        }
       }
       if (!tempMap.containsKey(prNode.getWord())) {
         candidate.remove(prNode);
@@ -250,7 +247,7 @@ public class mainWindow {
         int newDistance = prNode.getWeiht() + tempMap.get(prNode.getWord()).get(b).getWeight();
         for (treeNodes tNode : candidate) {
           //if the new distance is shorter then update the tree
-          if (tNode.getWord() == b) {
+          if (tNode.getWord().equals(b)) {
             find = true;
             if (tNode.getWeiht() > newDistance) {
               candidate.remove(tNode);
@@ -265,34 +262,30 @@ public class mainWindow {
       }
     }
     //trace back one route
-    if (prNode == null) {
+    if (finalNode.isEmpty()) {
       return ("Inaccessible form \"" + word1 + "\" to \"" + word2 + "\"");
     }
-    minDistance = prNode.getWeiht();
     StringBuffer result = new StringBuffer();
-    candidate.add(prNode);
-    for (treeNodes dNodes : candidate) {
-      if (dNodes.getWeiht() == minDistance && dNodes.getWord().equals(word2)) {
-        //save route
-        prNode = dNodes;
-        List<String> tempList = new ArrayList<String>();
-        int pathlenth = 0;
-        String outWord, inword;
-        do {
-          inword = prNode.getWord();
-          tempList.add(inword);
-          prNode = prNode.getFather();
-          outWord = prNode.getWord();
-          pathlenth += tempMap.get(outWord).get(inword).getWeight();
+    for (treeNodes dNodes : finalNode) {
+      //save route
+      prNode = dNodes;
+      List<String> tempList = new ArrayList<String>();
+      int pathlenth = 0;
+      String outWord, inword;
+      do {
+        inword = prNode.getWord();
+        tempList.add(inword);
+        prNode = prNode.getFather();
+        outWord = prNode.getWord();
+        pathlenth += tempMap.get(outWord).get(inword).getWeight();
 
-        } while (!prNode.getWord().equals(word1));
-        result.append(pathlenth + " " + word1);
-        Collections.reverse(tempList);
-        for (String aString : tempList) {
-          result.append("->" + aString);
-        }
-        result.append("\n");
+      } while (!prNode.getWord().equals(word1));
+      result.append(pathlenth + " " + word1);
+      Collections.reverse(tempList);
+      for (String aString : tempList) {
+        result.append("->" + aString);
       }
+      result.append("\n");
     }
     return result.toString().substring(0, result.length() - 1);
   }
@@ -305,8 +298,7 @@ public class mainWindow {
     int[] path = new int[G.getVertexNum()];
     HashMap<String, Edge> tempMap = G.getNodeList().get(word1);
     String tempWord;
-    if (tempMap == null)//the word has no connection with others
-    {
+    if (tempMap == null) {//the word has no connection with others
       return null;
     }
     //initialize all the variable
@@ -390,6 +382,8 @@ public class mainWindow {
     //2. w1<-w2<-...(attention! the path is reversed)
     //3. w1<-w2<-... \n w3<-w4 ...
     String result = null;
+    //int num2 = 1 / 0;
+    //System.out.println(num2);
     if (!G.getNodeSet().containsKey(word1)) {
       if (!G.getNodeSet().containsKey(word2)) {
         result = "No \"" + word1 + "\"" + " and \"" + word2 + "\" in the graph!";
@@ -428,8 +422,7 @@ public class mainWindow {
       return null;
     }
     for (String i : e.keySet()) {
-      if (G.getNodeList().get(i) != null && 
-          G.getNodeList().get(i).containsKey(w2)) {
+      if (G.getNodeList().get(i) != null && G.getNodeList().get(i).containsKey(w2)) {
         result.add(i);
       }
     }
