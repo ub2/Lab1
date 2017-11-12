@@ -1,4 +1,4 @@
-package testFolder;
+package blacktest;
 
 import static org.junit.Assert.*;
 import java.io.FileNotFoundException;

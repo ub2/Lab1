@@ -1,10 +1,11 @@
+package whitetest;
 import static org.junit.Assert.*;
 import java.io.FileNotFoundException;
 import org.junit.Test;
 import lab1.core.Graph;
 import lab1.core.mainWindow;
 
-public class Test1 {
+public class Test4 {
 
   @Test
   public void testCalcShortestPath() {
@@ -15,6 +16,6 @@ public class Test1 {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    assertEquals("No \"d\" in the graph!", main.queryBridgeWords(graph, "d", "c"));
+    assertEquals("No bridge words from \"a\"to \"b\"!", main.queryBridgeWords(graph, "a", "b"));
   }
 }

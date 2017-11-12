@@ -1,3 +1,6 @@
+.project
+.idea
+.settings
 /app0/build/
 /bin/
 /target/

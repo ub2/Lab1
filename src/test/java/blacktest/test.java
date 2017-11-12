@@ -1,4 +1,4 @@
-package testFolder;
+package blacktest;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
