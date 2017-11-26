@@ -3,13 +3,13 @@ import static org.junit.Assert.*;
 import java.io.FileNotFoundException;
 import org.junit.Test;
 import lab1.core.Graph;
-import lab1.core.mainWindow;
+import lab1.core.control;
 
 public class Test1 {
 
   @Test
   public void testCalcShortestPath() {
-    mainWindow main = new mainWindow();
+    control main = new control();
     Graph graph=null;
     try {
       graph = main.createDirectedGraph("abc.txt");

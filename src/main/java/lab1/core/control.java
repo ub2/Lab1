@@ -10,7 +10,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
-public class mainWindow {
+public class control {
 
   private static String fileName;
   private static final int infinite = 1000;

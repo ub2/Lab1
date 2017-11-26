@@ -86,7 +86,7 @@ import lab1.lemmatization.StanfordLemmatizer;
  */
 public class GuiController implements Initializable {
     
-    private mainWindow lab1;
+    private control lab1;
     private Graph g;
     private AnchorPane winBorder;
     @FXML
@@ -369,7 +369,7 @@ public class GuiController implements Initializable {
         word2.setVisible(false);
         word3.setVisible(false);
         wordBox.setVisible(false);
-        lab1 = new mainWindow();
+        lab1 = new control();
         g = null;
         //press enter
         rightPanel.addEventFilter(KeyEvent.KEY_RELEASED, (KeyEvent e) -> {

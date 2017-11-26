@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import java.io.FileNotFoundException;
 import org.junit.Test;
 import lab1.core.Graph;
-import lab1.core.mainWindow;
+import lab1.core.control;
 
 
 
@@ -13,8 +13,8 @@ public class test5 {
   @Test
   public void testCalcShortestPath5() throws FileNotFoundException {
     //case 3
-    Graph aGraph = mainWindow.createDirectedGraph("noty.txt");
-    String path = mainWindow.calcShortestPath(aGraph, "with","");
+    Graph aGraph = control.createDirectedGraph("noty.txt");
+    String path = control.calcShortestPath(aGraph, "with","");
     assertEquals("6 with->goodness->the->world->will->treat\n" + 
         "2 with->goodness->the\n" + 
         "4 with->goodness->the->world\n" + 
