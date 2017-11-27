@@ -73,7 +73,10 @@ public class Graph {
       nodeSet.put(word, vertexNum++);
     }
   }
-
+  public HashMap<String, Integer> getNodeSet() {
+	    return nodeSet;
+	  }
+  //重置颜色
   public void resetColor() {
     for (String a : nodeList.keySet()) {
       for (Edge b : nodeList.get(a).values()) {
@@ -85,10 +88,7 @@ public class Graph {
     }
   }
 
-  public HashMap<String, Integer> getNodeSet() {
-    return nodeSet;
-  }
-  
+  //解析字符串上色
   public void color(String path, int mode) {
     if (path == null || path.isEmpty()) {
       return;
@@ -111,10 +111,33 @@ public class Graph {
       colorVertex(words[0], 4);
     }
   }
-
+  
+  //color的辅助函数
   public void colorVertex(String word, int color) {
     if (word != null && !word.isEmpty() && nodeSet.get(word) != null) {
       nodes.get(nodeSet.get(word)).setColor(color);
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

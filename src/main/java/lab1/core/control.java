@@ -209,8 +209,9 @@ public class control {
     in.close();
     return result.get();
   }
-
-  public static String calcShortestPath1(Graph G, String word1, String word2) {
+  
+  //calculate all shortest paths from 1 to 2
+  private static String calcShortestPath1(Graph G, String word1, String word2) {
     int minDistance = infinite;//the shortest distance
     PriorityQueue<treeNodes> candidate = new PriorityQueue<treeNodes>(G.getVertexNum(), myCompare);
     Map<String, HashMap<String, Edge>> tempMap = G.getNodeList();
@@ -291,7 +292,7 @@ public class control {
   }
 
   //calculate the shortest path one to all
-  public static String calcShortestPath2(Graph G, String word1) {
+  private static String calcShortestPath2(Graph G, String word1) {
     int[] minDistance = new int[G.getVertexNum()];
     int word1Sub = -1, word2Sub = -1;
     Set<Integer> mark = new HashSet<Integer>();
@@ -375,7 +376,8 @@ public class control {
     }
     return result.toString().substring(0, result.length() - 1);
   }
-
+  
+  //calculate the shortest path
   public static String calcShortestPath(Graph G, String word1, String word2) {
     //return mode 
     //1. warning message
@@ -433,3 +435,16 @@ public class control {
     return (result.size() == 0) ? null : tmp.toString();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
